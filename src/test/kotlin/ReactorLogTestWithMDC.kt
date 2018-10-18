@@ -17,7 +17,7 @@ class ReactorLogTestWithMDC {
                 .map { System.out.println("Hello, $it") }
                 // 아래 줄은 반드시 doOnEach 보다 나중이어야한다.
                 .subscriberContext {
-                    it.put("userNo", 123).put("foo", "bar")
+                    it.put("userNo", 123).put("foo", "bar2")
                 }
                 .log()
                 // 멀티스레드로 동작하게 하려고
