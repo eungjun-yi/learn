@@ -1,3 +1,5 @@
+package com.npcode.learning.kotlin
+
 import org.junit.Test
 import kotlin.reflect.KProperty
 

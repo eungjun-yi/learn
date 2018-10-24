@@ -1,3 +1,5 @@
+package com.npcode.learning.kotlin
+
 class ReifiedTest {
 
     class Foo {
