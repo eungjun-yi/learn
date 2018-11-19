@@ -1,7 +1,7 @@
 buildscript {
     ext {
         kotlinVersion = '1.2.61'
-        springBootVersion = '2.0.4.RELEASE'
+        springBootVersion = '2.1.0.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -34,11 +34,15 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile 'io.github.microutils:kotlin-logging:1.5.9'
     compile('org.projectlombok:lombok:1.16.20')
+    compile 'com.github.kstyrc:embedded-redis:0.6'
+    compile('org.springframework.boot:spring-boot-starter-data-redis-reactive')
+    compile('com.fasterxml.jackson.module:jackson-module-kotlin')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.nhaarman:mockito-kotlin:1.6.0')
 }
 
 compileKotlin {

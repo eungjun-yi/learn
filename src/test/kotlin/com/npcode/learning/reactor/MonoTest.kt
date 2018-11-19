@@ -1,4 +1,8 @@
 package com.npcode.learning.reactor
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.times
+import com.nhaarman.mockito_kotlin.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import reactor.core.publisher.Mono
@@ -48,5 +52,100 @@ class MonoTest {
         // Then
         assertThat(spentMillis).isGreaterThanOrEqualTo(200)
         assertThat(spentMillis).isLessThan(300)
+    }
+
+    @Test
+    fun thread() {
+        val mono = Mono.just("hello").map { "$it thread " }
+
+        val t = Thread({
+            mono.subscribe {
+                System.out.println(it + Thread.currentThread().name)
+            }
+        }, "mythread")
+
+        t.start()
+
+        t.join()
+    }
+
+    @Test
+    fun runnable() {
+        val t = Thread { System.out.println("hello " + Thread.currentThread().name) }
+        Mono.fromRunnable<String>(t)
+            .block()
+    }
+
+    @Test
+    fun doOnErrorNeedsSubscribe() {
+        Mono.fromCallable {
+            throw RuntimeException()
+            ""
+        }
+            .doOnError { Mono.fromCallable { System.out.println("do something on error") }.subscribe() }
+            .onErrorReturn("")
+            .block()
+    }
+
+    @Test
+    fun doOnEachRunsOnlyOnce() {
+        open class Foo {
+            fun bar() {
+
+            }
+        }
+        val foo = mock<Foo> {}
+        Mono.just(1)
+            .doOnEach { foo.bar() }
+            .block()
+
+        verify(foo, times(1)).bar()
+    }
+
+    @Test
+    fun doOnEachNeverRunIfEmpty() {
+        open class Foo {
+            fun bar() {
+
+            }
+        }
+        val foo = mock<Foo> {}
+        Mono.empty<Int>()
+            .doOnEach { foo.bar() }
+            .block()
+
+        verify(foo, never()).bar()
+    }
+
+    @Test
+    fun doOnEachNeverRunIfError() {
+        open class Foo {
+            fun bar() {
+
+            }
+        }
+        val foo = mock<Foo> {}
+        Mono.fromCallable { throw IllegalStateException() }
+            .doOnEach { foo.bar() }
+            .onErrorResume { Mono.empty() }
+            .block()
+
+        verify(foo, never()).bar()
+    }
+
+    @Test
+    fun doOnSuccessNeverRunIfEmpty() {
+        open class Foo {
+            fun bar() {
+
+            }
+        }
+        val foo = mock<Foo> {}
+        Mono.just(1)
+            .flatMap { Mono.empty<Int>() }
+            .doOnSuccess { foo.bar() }
+            .block()
+
+        verify(foo, never()).bar()
     }
 }

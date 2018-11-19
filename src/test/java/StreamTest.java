@@ -1,5 +1,4 @@
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,9 +9,10 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-
 import lombok.Value;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StreamTest {
 
