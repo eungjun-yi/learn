@@ -6,6 +6,7 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 import reactor.core.scheduler.Schedulers
 import reactor.test.StepVerifier
+import reactor.test.test
 
 class FluxTest {
     @Test
@@ -334,5 +335,18 @@ class FluxTest {
         // * cause an {@link IllegalStateException} to be thrown, but obtaining the {@link Stream}
         // * itself or applying lazy intermediate operation on the stream within these threads is ok.
         val stream = Flux.just(1 ,2, 3).toStream()
+    }
+
+    @Test
+    fun onErrorContinue() {
+        Flux.just(1, 0, 2)
+            .map { 2 / it }
+            .onErrorContinue { t, u ->
+
+            }
+            .collectList()
+            .test()
+            .expectNext(listOf(2, 1))
+            .verifyComplete()
     }
 }

@@ -1,7 +1,7 @@
 buildscript {
     ext {
         kotlinVersion = '1.2.61'
-        springBootVersion = '2.1.0.RELEASE'
+        springBootVersion = '2.1.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -43,6 +43,8 @@ dependencies {
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.nhaarman:mockito-kotlin:1.6.0')
+
+    testCompile('io.mockk:mockk:1.8.13')
 }
 
 compileKotlin {
