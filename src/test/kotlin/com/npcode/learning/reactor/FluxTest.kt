@@ -1,5 +1,7 @@
 package com.npcode.learning.reactor
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import reactor.core.Disposables
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -7,6 +9,7 @@ import reactor.core.publisher.toFlux
 import reactor.core.scheduler.Schedulers
 import reactor.test.StepVerifier
 import reactor.test.test
+import java.util.logging.Level
 
 class FluxTest {
     @Test
@@ -341,12 +344,118 @@ class FluxTest {
     fun onErrorContinue() {
         Flux.just(1, 0, 2)
             .map { 2 / it }
-            .onErrorContinue { t, u ->
-
-            }
+            .onErrorContinue { t, u -> }
             .collectList()
             .test()
             .expectNext(listOf(2, 1))
             .verifyComplete()
+    }
+
+    @Test
+    fun onErrorContinue2() {
+        Flux.error<Int>(RuntimeException())
+            .onErrorContinue { t, u ->
+            }
+            .collectList()
+            .test()
+            .verifyComplete()
+    }
+
+    @Test
+    fun onErrorResume() {
+        Flux.concat(Flux.just(1), Flux.error<Int>(RuntimeException()), Flux.just(3))
+            .collectList()
+            .onErrorResume { Mono.empty() }
+            .test()
+            .verifyComplete()
+    }
+
+    @Test
+    fun onErrorResume2() {
+        Flux.error<Int>(RuntimeException())
+            .onErrorResume { Flux.empty() }
+            .collectList()
+            .test()
+            .expectNext(listOf())
+            .verifyComplete()
+    }
+
+    @Test
+    fun onErrorContinue3() {
+        Flux.concat(Flux.just(1), Flux.error<Int>(RuntimeException()), Flux.just(3))
+            .onErrorContinue(java.lang.RuntimeException::class.java) { t, u -> }
+            .test()
+            .expectNext(1)
+            .expectNext(3)
+            .verifyComplete() // fail
+    }
+
+    @Test
+    fun onErrorContinue5() {
+        Flux.generate<Int> { throw RuntimeException() }
+            .onErrorContinue { t, u -> }
+            .take(1)
+            .test()
+            .verifyComplete() // fail
+    }
+
+    @Test
+    fun onErrorContinue7() {
+        Flux.just(0)
+            .map { throw RuntimeException() }
+            .onErrorContinue { t, u -> }
+            .test()
+            .verifyComplete()
+    }
+
+    @Test
+    fun onErrorContinue8() {
+        Flux.just(0)
+            .flatMap { Flux.error<Int>(java.lang.RuntimeException()) }
+            .onErrorContinue { t, u -> }
+            .test()
+            .verifyComplete() // fail
+    }
+
+    @Test
+    fun onErrorResume3() {
+        Flux.just(0)
+            .flatMap { Flux.error<Int>(java.lang.RuntimeException()) }
+            .onErrorResume { Flux.empty() }
+            .test()
+            .verifyComplete()
+    }
+
+    @Test
+    fun onErrorResume4() {
+        Flux.just(0)
+            .map { throw RuntimeException() }
+            .onErrorResume { Flux.empty() }
+            .test()
+            .verifyComplete()
+    }
+
+    @Test
+    fun retry() {
+        Flux.concat(Flux.just(1), Flux.error<Int>(RuntimeException()), Flux.just(3))
+            .retry()
+            .test()
+            .expectNext(1)
+            .expectNext(1)
+            .verifyComplete()
+    }
+
+    private val logger = object : reactor.util.Logger, Logger by LoggerFactory.getLogger("mytest") {}
+
+    @Test
+    fun log() {
+        // 디버깅을 해 보면, 여기서 INFO로 설정을 했더라도 onError 등의 에러 관련 로그는 에러 레벨 로그로 남긴다.
+        // Signal.onErrorCall()이 이 로그 레벨을 무시한다.
+        Flux.concat(Flux.just(1), Flux.error<Int>(RuntimeException()), Flux.just(3))
+            .log(logger, Level.INFO, true)
+            .test()
+            .expectNext(1)
+            .expectError(java.lang.RuntimeException::class.java)
+            .verify()
     }
 }
