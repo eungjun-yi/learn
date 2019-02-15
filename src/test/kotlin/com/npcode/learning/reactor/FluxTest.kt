@@ -458,4 +458,31 @@ class FluxTest {
             .expectError(java.lang.RuntimeException::class.java)
             .verify()
     }
+
+    @Test
+    fun collectList() {
+        Mono.empty<Int>().toFlux().collectList().test().expectNext(emptyList()).verifyComplete()
+    }
+
+    @Test
+    fun cache() {
+        // 캐시 대상 publisher가 cached1 출력을 포함하므로 cached1 한번만 출력
+        val mono1 = Mono.just(1).doOnNext { System.out.println("cached1") }.cache()
+        mono1.block()
+        mono1.block()
+
+        // 캐시 대상 publisher가 cached2 출력을 포함하지 않으므로 cached2 두 번 출력
+        val mono2 = Mono.just(1).cache().doOnNext { System.out.println("cached2") }
+        mono2.block()
+        mono2.block()
+    }
+
+    @Test
+    fun `Operator called default onErrorDropped`() {
+        val create = Flux.create<String> { sink ->
+            sink.error(RuntimeException())
+            sink.complete()
+        }
+        create.test().verifyComplete()
+    }
 }

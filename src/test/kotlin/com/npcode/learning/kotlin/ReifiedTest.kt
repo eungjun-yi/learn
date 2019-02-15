@@ -1,5 +1,8 @@
 package com.npcode.learning.kotlin
 
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Test
+
 class ReifiedTest {
 
     class Foo {
@@ -23,4 +26,21 @@ class ReifiedTest {
         t.bar1()
         // T.bar2() // compile error
     }
+
+    @Test
+    fun reflectionAndInline() {
+
+        class A {
+            val name = genName().javaClass.name
+        }
+
+        class B {
+            val name = genName().javaClass.name
+        }
+
+        assertThat(A().name).isEqualTo("com.npcode.learning.kotlin.ReifiedTest\$reflectionAndInline\$A\$name\$1")
+        assertThat(B().name).isEqualTo("com.npcode.learning.kotlin.ReifiedTest\$reflectionAndInline\$B\$name\$1")
+    }
+
+    inline fun genName()  = {}
 }
