@@ -6,6 +6,7 @@ import reactor.core.Disposables
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
+import reactor.core.publisher.toMono
 import reactor.core.scheduler.Schedulers
 import reactor.test.StepVerifier
 import reactor.test.test
@@ -484,5 +485,23 @@ class FluxTest {
             sink.complete()
         }
         create.test().verifyComplete()
+    }
+
+    @Test
+    fun `filterWhen은 publisher를 받는다`() {
+        Flux.just(1, 2, 3)
+            .filterWhen { (it > 1).toMono() }
+            .test()
+            .expectNext(2)
+            .expectNext(3)
+            .verifyComplete()
+    }
+
+    @Test
+    fun `filterWhen이 Mono empty 라면 false 처럼 처리되는 듯`() {
+        Flux.just(1, 2, 3)
+            .filterWhen { Mono.empty() }
+            .test()
+            .verifyComplete()
     }
 }

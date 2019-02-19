@@ -1,4 +1,4 @@
-package com.npcode.learning.kotlin
+package com.npcode.learning.testing
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
@@ -42,7 +42,7 @@ class MockkPerfTest {
 
     @Test
     fun testWithMockk() {
-        val foo = mockk<Foo>()
+        val foo = mockk<Foo>() // 이것 자체가 느림
         every {
             foo.bar()
         } returns 2
