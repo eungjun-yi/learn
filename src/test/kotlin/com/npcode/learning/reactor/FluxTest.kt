@@ -504,4 +504,23 @@ class FluxTest {
             .test()
             .verifyComplete()
     }
+
+    @Test
+    fun `빈 flux라면 all은 true`() {
+        Flux.empty<Int>().all {
+            it == 1
+        }.test().expectNext(true).verifyComplete()
+    }
+
+    @Test
+    fun `빈 flux라면 any는 false`() {
+        Flux.empty<Int>().any {
+            it == 0
+        }.test().expectNext(false).verifyComplete()
+    }
+
+    @Test
+    fun `빈 flux에 next(), block() 하면 null을 얻을 수 있다`() {
+        val x = Flux.empty<String>().next().block()
+    }
 }
