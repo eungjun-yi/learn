@@ -77,6 +77,10 @@ dependencies {
 
     testCompile "org.jetbrains.spek:spek-api:1.1.5"
     testRuntime "org.jetbrains.spek:spek-junit-platform-engine:1.1.5"
+
+    // Lombok
+    compileOnly('org.projectlombok:lombok:1.18.8')
+	annotationProcessor('org.projectlombok:lombok:1.18.8')
 }
 
 compileKotlin {
