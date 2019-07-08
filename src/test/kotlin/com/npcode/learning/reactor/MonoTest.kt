@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import reactor.core.scheduler.Schedulers
@@ -168,5 +169,27 @@ class MonoTest {
         }
 
         Mono.just(1).flatMap { x?.toMono() ?: Mono.empty() }
+    }
+
+    @Test
+    fun zipWitEmpty() {
+        // then을 쓰면 될까? 안되잖아
+        val value: Mono<Int> = Mono.just(1)
+        val emptyThen: Mono<Void> = Mono.empty<Int>().then()
+
+        Mono.zip(value, emptyThen)
+            .map {
+                System.out.println(it.t1)
+            }.block()
+    }
+
+    @Test
+    fun concatWithEmpty() {
+        val value: Mono<Int> = Mono.just(1)
+        val empty: Mono<Int> = Mono.empty<Int>()
+
+        Flux.concat(value, empty).map {
+            System.out.println(it)
+        }.blockLast()
     }
 }

@@ -120,7 +120,9 @@ class CoroutineTest {
     }
 
     class CoroutineDatasource(private val monoDatasource: Mono<Int>) {
-        suspend fun get() = monoDatasource.awaitSingle()
+        suspend fun get() = monoDatasource.doOnEach {
+            System.out.println("Context: " + it.context)
+        }.awaitSingle()
     }
 
     @Test
@@ -128,5 +130,15 @@ class CoroutineTest {
         GlobalScope.mono {
             null
         }.test().verifyComplete()
+    }
+
+    @Test
+    fun testContext() {
+        val monoDatasource = Mono.just(1)
+        val coroutineDatasource = CoroutineDatasource(monoDatasource)
+        val multiplier = CoroutineService(coroutineDatasource)
+        GlobalScope.mono {
+            multiplier.multiply(3)
+        }.subscriberContext { it.put("myvalue", "foo") }.block()
     }
 }

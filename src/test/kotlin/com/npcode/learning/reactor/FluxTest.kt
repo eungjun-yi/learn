@@ -1,4 +1,5 @@
 package com.npcode.learning.reactor
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,6 +11,7 @@ import reactor.core.publisher.toMono
 import reactor.core.scheduler.Schedulers
 import reactor.test.StepVerifier
 import reactor.test.test
+import java.time.Duration
 import java.util.logging.Level
 
 class FluxTest {
@@ -230,7 +232,7 @@ class FluxTest {
         Mono.subscriberContext().map { context ->
             Mono.just(1).doOnEach {
                 if (it.isOnComplete) {
-                    System.out.println(it.context.get("foo") as Int)
+                    println(it.context.get("foo") as Int)
                 }
             }.subscriberContext(context).block()
         }.subscriberContext { it.put("foo", 123)  }.block()
@@ -242,7 +244,7 @@ class FluxTest {
             Flux.just(1, 2, 0)
                 .map { 1 / it }
                 .doOnEach {
-                    System.out.println("${it.type} foo: ${it.context.get("foo") as Int}")
+                    println("${it.type} foo: ${it.context.get("foo") as Int}")
                 }.subscriberContext(context).blockLast()
         }.subscriberContext { it.put("foo", 123)  }.block()
     }
@@ -522,5 +524,76 @@ class FluxTest {
     @Test
     fun `빈 flux에 next(), block() 하면 null을 얻을 수 있다`() {
         val x = Flux.empty<String>().next().block()
+    }
+
+    @Test
+    fun `Flux all은 하나라도 false 가 발견되면 즉시 중단할 것이다`() {
+        val flux = Flux.just(
+            { logger.info("1"); true },
+            { logger.info("2"); false },
+            { logger.info("3"); true },
+            { logger.info("4"); true }
+        )
+
+        flux.all { it.invoke() }.block()
+    }
+
+    @Test
+    fun `flatMap과 all으로 해도 한번씩만 실행한다`() {
+        val preds = listOf(
+            { logger.info("1"); true.toMono() },
+            { logger.info("2"); false.toMono() },
+            { logger.info("3"); true.toMono() },
+            { logger.info("4"); true.toMono() }
+        )
+
+        preds.toFlux().flatMap { it.invoke() }.all { it }.block()
+    }
+
+    @Test
+    fun concat() {
+        val list = Flux.concat(Mono.just(1), Mono.empty(), Mono.just(3))
+            .collectList()
+            .block()
+
+        assertThat(list).isEqualTo(listOf(1, 3))
+    }
+
+    @Test
+    fun `concat은 publisher들을 하나하나 순차적으로 subscribe한다`() {
+        val start = System.currentTimeMillis()
+        val list = Flux.concat(
+            Mono.just(1).delayElement(Duration.ofSeconds(1)),
+            Mono.just(2).delayElement(Duration.ofSeconds(1)),
+            Mono.just(3).delayElement(Duration.ofSeconds(1)),
+            Mono.just(4).delayElement(Duration.ofSeconds(1)),
+            Mono.just(5).delayElement(Duration.ofSeconds(1))
+        )
+            .collectList()
+            .block()
+        val end = System.currentTimeMillis()
+
+        System.out.println(end - start)
+
+        assertThat(list).isEqualTo(listOf(1, 2, 3, 4, 5))
+    }
+
+    @Test
+    fun `mergeSequential은 publisher들을 동시에 subscribe 하지만 순서대로 배치한다`() {
+        val start = System.currentTimeMillis()
+        val list = Flux.mergeSequential(
+            Mono.just(1).delayElement(Duration.ofSeconds(1)),
+            Mono.just(2).delayElement(Duration.ofSeconds(1)),
+            Mono.just(3).delayElement(Duration.ofSeconds(1)),
+            Mono.just(4).delayElement(Duration.ofSeconds(1)),
+            Mono.just(5).delayElement(Duration.ofSeconds(1))
+        )
+            .collectList()
+            .block()
+        val end = System.currentTimeMillis()
+
+        System.out.println(end - start)
+
+        assertThat(list).isEqualTo(listOf(1, 2, 3, 4, 5))
     }
 }

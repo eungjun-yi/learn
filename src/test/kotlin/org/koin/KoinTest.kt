@@ -32,6 +32,22 @@ class SimpleTest1 {
     }
 }
 
+class OverrideTest: KoinTest {
+    @Test
+    fun testProdModule2() {
+        startKoin {
+            modules(
+                prodModule,
+                module {
+                    single(override = true) { FakeMySubService() } bind MySubService::class
+                }
+            )
+        }
+
+        get<MyService>().foo()
+    }
+}
+
 // KoinTest를 상속하고 하기
 class SimpleTest: KoinTest {
 
@@ -113,10 +129,16 @@ class MyFactory2: KoinComponent {
     init {
         startKoin {
             modules(
+                prodModule,
+                module {
+                    single(override = true) { ProdMySubService() } bind MySubService::class
+                }
+                /*
                 module {
                     single { MyService(get()) }
                     single { ProdMySubService() } bind MySubService::class
                 }
+                 */
             )
         }
     }
