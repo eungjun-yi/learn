@@ -9,18 +9,33 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
-import lombok.Value;
-
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StreamTest {
 
-  @lombok.Value
   class MyValue {
     private final String date;
     private final int round;
     private final int value;
+
+    public MyValue(String date, int round, int value) {
+      this.date = date;
+      this.round = round;
+      this.value = value;
+    }
+
+    public String getDate() {
+      return date;
+    }
+
+    public int getRound() {
+      return round;
+    }
+
+    public int getValue() {
+      return value;
+    }
   }
 
   @Test
@@ -104,11 +119,24 @@ public class StreamTest {
   @Test
   public void mapOfMap() {
 
-    @Value
     class Key {
       private final String date;
       private final int round;
+
+      public Key(String date, int round) {
+        this.date = date;
+        this.round = round;
+      }
+
+      public String getDate() {
+        return date;
+      }
+
+      public int getRound() {
+        return round;
+      }
     }
+
     Map<Key, Integer> given = new HashMap<>();
     given.put(new Key("2018-01-01", 1), 100);
     given.put(new Key("2018-01-01", 2), 101);

@@ -37,7 +37,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile 'io.github.microutils:kotlin-logging:1.5.9'
-    compile('org.projectlombok:lombok:1.16.20')
     compile 'com.github.kstyrc:embedded-redis:0.6'
     compile('org.springframework.boot:spring-boot-starter-data-redis-reactive')
     compile('com.fasterxml.jackson.module:jackson-module-kotlin')
