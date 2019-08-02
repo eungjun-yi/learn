@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import reactor.core.scheduler.Schedulers
+import java.time.Duration
 import java.util.concurrent.Executors
 
 class MonoTest {
@@ -191,5 +192,25 @@ class MonoTest {
         Flux.concat(value, empty).map {
             System.out.println(it)
         }.blockLast()
+    }
+
+    @Test
+    fun testEventLoop() {
+        val mono = Mono.just(1)
+        val multi = mono
+            .name("delay test")
+            .metrics()
+            .delayElement(Duration.ofSeconds(1)) // 이것은 MonoDealyElement를 만든다.
+            // MonoDelayElement의 onNext(task)는 아래 task를 schedule에 집어넣는다
+            // scheduler는 Schedulers.parallel() 이다
+            .map {
+                // 만약에 여기서 어떤 일을 하는데 너무너무 오래걸리는 경우를 감지하려면 어떻게 할까?
+                it * 2
+            }
+            // 여기서 지정한 duration만큼 기다리는 MonoDelay를 schedule에 등록시키는 방식으로 timeout을 감지한다
+            // .timeout(Duration.ofMillis(1)) // MonoTimeout
+        multi.subscribe()
+        val result = multi.block()
+        assertThat(result).isEqualTo(2)
     }
 }

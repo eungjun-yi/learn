@@ -596,4 +596,22 @@ class FluxTest {
 
         assertThat(list).isEqualTo(listOf(1, 2, 3, 4, 5))
     }
+
+    @Test
+    fun `Flux test coverage`() {
+        val xs = Flux.just(1)
+        // 이 부분의 bytecode를 확인해보면...
+        xs.any { 1 == it }.test().expectNext(true).verifyComplete()
+    }
+
+    @Test
+    fun `first nonempty`() {
+        Flux.mergeSequential(
+            listOf(
+                Mono.empty<Int>()
+            ) + (1..10).map {
+                Mono.just(it)
+            }
+        ).take(1).test().expectNext(1).verifyComplete()
+    }
 }
