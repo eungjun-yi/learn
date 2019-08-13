@@ -614,4 +614,26 @@ class FluxTest {
             }
         ).take(1).test().expectNext(1).verifyComplete()
     }
+
+    @Test
+    fun sequenceToFlux() {
+        val flux = generateSequence { 1 }.toFlux()
+        flux.take(2).test(2).expectNextCount(2).verifyComplete()
+    }
+
+    @Test
+    fun sequence() {
+        val seq = generateSequence { throw RuntimeException() }
+
+        try {
+            seq.iterator().next()
+        } catch (e: RuntimeException) {
+
+        }
+
+        try {
+            seq.iterator().next()
+        } catch (e: RuntimeException) {
+        }
+    }
 }
