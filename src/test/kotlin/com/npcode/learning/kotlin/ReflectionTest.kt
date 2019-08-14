@@ -139,12 +139,19 @@ interface Generator<T> {
     fun anyBoolean(): Boolean
     fun anyInt(range: Iterable<Int>): Int
     fun generate(gen: Generator<T>.() -> T): T = gen.invoke(this)
+    fun <U : Any> anyEnum(enumClass: KClass<U>): U
+}
+
+inline fun <T, reified U: Any> Generator<T>.anyEnum(): U {
+    return this.anyEnum(U::class)
 }
 
 data class GeneratorImpl2<T>(
     val boolValues: Iterator<Boolean>,
-    val intValues: Iterator<Int>
+    val intValues: Iterator<Int>,
+    val enumValues: Map<KClass<out Any>, Iterator<Any>>
 ): Generator<T> {
+    override fun <U : Any> anyEnum(enumClass: KClass<U>): U = (enumValues[enumClass] as Iterator<U>).next()
     override fun anyInt(range: Iterable<Int>) = intValues.next()
     override fun anyBoolean() = boolValues.next()
 }
@@ -153,6 +160,12 @@ class ParameterCounter<T>: Generator<T> {
 
     var boolCount = 0
     var intRanges: MutableList<Iterable<Int>> = mutableListOf()
+    var enumCount: MutableMap<KClass<out Any>, Int> = mutableMapOf()
+
+    override fun <U : Any> anyEnum(enumClass: KClass<U>): U {
+        enumCount[enumClass] = (enumCount[enumClass] ?: 0) + 1
+        return enumClass.java.enumConstants.first()
+    }
 
     override fun anyInt(range: Iterable<Int>): Int {
         intRanges.add(range)
@@ -181,24 +194,79 @@ fun intCombination(ranges: List<Iterable<Int>>): List<List<Int>> = when(ranges.s
     }.flatten()
 }
 
+fun enumCombination(
+    type: KClass<out Any>,
+    count: Int
+): List<List<Any>> {
+    return when(count) {
+        0 -> listOf(emptyList())
+        else -> {
+            val heads = type.java.enumConstants
+            enumCombination(type, count - 1).map { tail ->
+                heads.map { head ->
+                    listOf(head) + tail
+                }
+            }.flatten()
+        }
+    }
+}
+
+fun enumCombination(
+    countByEnumType: Map<KClass<out Any>, Int>
+): List<Map<KClass<out Any>, List<Any>>> {
+    return when(countByEnumType.size) {
+        0 -> listOf(emptyMap())
+        else -> {
+            val head = countByEnumType.entries.first()
+            val headType = head.key
+            val headValues = enumCombination(headType, head.value)
+
+            val tail = countByEnumType.entries.drop(1).map {
+                it.key to it.value
+            }.toMap()
+
+            val enumCombination = enumCombination(tail)
+            headValues.map { headValue ->
+                enumCombination.map { tailValues ->
+                    val result = mutableMapOf(
+                        headType to headValue
+                    )
+                    result.putAll(tailValues)
+                    result.toMap()
+                }
+            }.flatten()
+        }
+    }
+}
+
 data class ParameterCombination(
     val boolValue: List<Boolean>,
-    val intValue: List<Int>
+    val intValue: List<Int>,
+    val enumValues: Map<KClass<out Any>, List<Any>>
 )
 
 fun parameterCombination(
     booleanSize: Int,
-    intRanges: List<Iterable<Int>>
+    intRanges: List<Iterable<Int>>,
+    enumCount: MutableMap<KClass<out Any>, Int>
 ): List<ParameterCombination> {
 
-    if (booleanSize == 0 && intRanges.isEmpty()) {
-        return listOf(ParameterCombination(emptyList(), emptyList()))
+    if (booleanSize == 0 && intRanges.isEmpty() && enumCount.isEmpty()) {
+        return listOf(
+            ParameterCombination(
+                emptyList(),
+                emptyList(),
+                emptyMap()
+            )
+        )
     }
 
     return booleanCombination(booleanSize).map { bools ->
         intCombination(intRanges).map { ints ->
-            ParameterCombination(bools, ints)
-        }
+            enumCombination(enumCount).map { enums ->
+                ParameterCombination(bools, ints, enums)
+            }
+        }.flatten()
     }.flatten()
 }
 
@@ -207,9 +275,16 @@ fun <T> combination(gen: Generator<T>.() -> T): Set<T> {
     parameterCounter.generate(gen)
     val parameterCombination = parameterCombination(
         parameterCounter.boolCount,
-        parameterCounter.intRanges
+        parameterCounter.intRanges,
+        parameterCounter.enumCount
     )
     return parameterCombination.map {
-        GeneratorImpl2<T>(it.boolValue.iterator(), it.intValue.iterator()).generate(gen)
+        GeneratorImpl2<T>(
+            it.boolValue.iterator(),
+            it.intValue.iterator(),
+            it.enumValues.map {
+                it.key to it.value.iterator()
+            }.toMap()
+        ).generate(gen)
     }.toSet()
 }

@@ -1,5 +1,6 @@
 package com.npcode.learning.kotlin
 
+import im.toss.test.equalsTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -175,16 +176,19 @@ class CombinationFactoryTest {
     fun testCombinationByGenerator4() {
 
         data class Foo(
-            val a: Bar
+            val a: Bar,
+            val b: Bar
         )
 
-        val foos: Set<Foo> = combination {
-            Foo(Bar.A)
-        }
-
-        assertThat(foos).containsAll(
-            listOf(
-                Foo(Bar.A)
+        // 왜 여기서 <Foo> 가 필요한건지 불명
+        combination<Foo> {
+            Foo(anyEnum(), anyEnum())
+        }.equalsTo(
+            setOf(
+                Foo(Bar.A, Bar.A),
+                Foo(Bar.A, Bar.B),
+                Foo(Bar.B, Bar.A),
+                Foo(Bar.B, Bar.B)
             )
         )
     }
