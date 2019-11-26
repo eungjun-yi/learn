@@ -1,5 +1,7 @@
 package com.npcode.learning.kotlin
 
+import im.toss.test.doesNotEqualTo
+import im.toss.test.equalsTo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.test
+import java.time.Duration
 
 class CoroutineTest {
 
@@ -89,18 +92,18 @@ class CoroutineTest {
     }
 
     @Test
-    fun fluxToCoroutine()  = runBlocking {
+    fun fluxToCoroutine() = runBlocking {
         val flux = Flux.just(1, 2, 3)
-        System.out.println(flux.awaitFirst())
-        System.out.println(flux.awaitLast())
+        println(flux.awaitFirst())
+        println(flux.awaitLast())
     }
 
     @Test
     fun monoToCoroutine()  = runBlocking {
         val listMono1 = Flux.just(1, 2, 3).collectList()
-        System.out.println(listMono1.awaitSingle())
+        println(listMono1.awaitSingle())
         val listMono2 = Mono.empty<Int>()
-        System.out.println(listMono2.awaitFirstOrNull())
+        println(listMono2.awaitFirstOrNull())
     }
 
     @Test
@@ -108,7 +111,7 @@ class CoroutineTest {
         val monoDatasource = Mono.just(1)
         val coroutineDatasource = CoroutineDatasource(monoDatasource)
         val multiplier = CoroutineService(coroutineDatasource)
-        GlobalScope.mono {
+        mono {
             multiplier.multiply(3)
         }.block()
     }
@@ -121,13 +124,13 @@ class CoroutineTest {
 
     class CoroutineDatasource(private val monoDatasource: Mono<Int>) {
         suspend fun get() = monoDatasource.doOnEach {
-            System.out.println("Context: " + it.context)
+            println("Context: " + it.context)
         }.awaitSingle()
     }
 
     @Test
     fun nullToEmptyMono() {
-        GlobalScope.mono {
+        mono {
             null
         }.test().verifyComplete()
     }
@@ -137,8 +140,48 @@ class CoroutineTest {
         val monoDatasource = Mono.just(1)
         val coroutineDatasource = CoroutineDatasource(monoDatasource)
         val multiplier = CoroutineService(coroutineDatasource)
-        GlobalScope.mono {
+        mono {
             multiplier.multiply(3)
         }.subscriberContext { it.put("myvalue", "foo") }.block()
+    }
+
+    @Test
+    fun testThread() {
+        var threadName1: String = ""
+        var threadName2: String = ""
+        var threadName3: String = ""
+        var threadName4: String = ""
+
+        runBlocking {
+            coroutineScope {
+                Mono.just(1)
+                    .map {
+                        threadName1 = Thread.currentThread().name
+                    }
+                    .delayElement(Duration.ofMillis(100))
+                    .map {
+                        threadName2 = Thread.currentThread().name
+                    }.awaitSingle()
+
+                Mono.just(2)
+                    .map {
+                        threadName3 = Thread.currentThread().name
+                    }
+                    .delayElement(Duration.ofMillis(100))
+                    .map {
+                        threadName4 = Thread.currentThread().name
+                    }.awaitSingle()
+            }
+        }
+
+        threadName1.doesNotEqualTo("")
+        threadName1.doesNotEqualTo("")
+        threadName1.doesNotEqualTo("")
+        threadName1.doesNotEqualTo("")
+
+        threadName1.doesNotEqualTo(threadName2)
+        threadName1.equalsTo(threadName3)
+        threadName2.doesNotEqualTo(threadName3)
+        threadName2.doesNotEqualTo(threadName4)
     }
 }

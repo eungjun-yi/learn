@@ -51,9 +51,9 @@ class CombinationFactoryTest {
     @Test
     fun testCombinationInt() {
         data class Foo(val a: Int)
-        val foos: Set<Foo?> = CombinationFactory.combination()
-        assertThat(foos).containsAll(
-            listOf(
+
+        CombinationFactory.combination<Foo>().equalsTo(
+            setOf(
                 Foo(-1),
                 Foo(0),
                 Foo(1)
@@ -64,9 +64,9 @@ class CombinationFactoryTest {
     @Test
     fun testCombinationIntAndBoolean() {
         data class Foo(val a: Int, val b: Boolean)
-        val foos: Set<Foo?> = CombinationFactory.combination()
-        assertThat(foos).containsAll(
-            listOf(
+
+        CombinationFactory.combination<Foo>().equalsTo(
+            setOf(
                 Foo(-1, true),
                 Foo(0, true),
                 Foo(1, true),
@@ -77,22 +77,6 @@ class CombinationFactoryTest {
         )
     }
 
-    /*
-    @Test
-    fun testCombinationWithGivenGenerator() {
-        data class Foo(val a: Int)
-        val generators = mapOf(Foo::a to listOf(1, 2, 3))
-        val foos: Set<Foo?> = CombinationFactory.combination(generators = generators)
-        assertThat(foos).containsAll(
-            listOf(
-                Foo(1),
-                Foo(2),
-                Foo(3)
-            )
-        )
-        // 특정 parameter에 generator를 지정할 수 있을까?
-    }
-     */
     data class Foo2(
         val a: Boolean,
         val b: Boolean,
@@ -109,13 +93,13 @@ class CombinationFactoryTest {
         combination<Foo2> {
             Foo2(true, anyBoolean(), anyBoolean())
         }.map { it: Foo2 ->
-            assertThat(isThisGood(it)).isTrue()
+            isThisGood(it).equalsTo(true)
         }
 
         combination<Foo2> {
             Foo2(false, anyBoolean(), anyBoolean())
         }.map {
-            assertThat(isThisGood(it)).isFalse()
+            isThisGood(it).equalsTo(false)
         }
     }
 
@@ -191,5 +175,22 @@ class CombinationFactoryTest {
                 Foo(Bar.B, Bar.B)
             )
         )
+    }
+
+    @Test
+    fun testCombinationDescription() {
+
+        data class Foo(
+            val a: Boolean,
+            val b: Boolean,
+            val c: Int,
+            val d: Int
+        )
+
+        val desc = combinationDescription<Foo> {
+            Foo(true, anyBoolean(), anyInt(1..2), anyInt(listOf(3, 5, 8)))
+        }
+
+        desc.equalsTo("임의의 Boolean / 1..2 중 하나의 Int / [3, 5, 8] 중 하나의 Int")
     }
 }

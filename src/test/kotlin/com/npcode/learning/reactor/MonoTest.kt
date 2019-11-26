@@ -43,7 +43,8 @@ class MonoTest {
     fun async() {
         // Given
         val scheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(2))
-        val mono = Mono.fromCallable { System.out.println("publisher works"); Thread.sleep(100); 1 }.publishOn(scheduler)
+        val mono = Mono.fromCallable { System.out.println("publisher works"); Thread.sleep(100); 1 }
+            .publishOn(scheduler)
 
         // When
         val start = System.currentTimeMillis()
@@ -86,7 +87,9 @@ class MonoTest {
             throw RuntimeException()
             ""
         }
-            .doOnError { Mono.fromCallable { System.out.println("do something on error") }.subscribe() }
+            .doOnError {
+                Mono.fromCallable { System.out.println("do something on error") }.subscribe()
+            }
             .onErrorReturn("")
             .block()
     }
@@ -98,6 +101,7 @@ class MonoTest {
 
             }
         }
+
         val foo = mock<Foo> {}
         Mono.just(1)
             .doOnEach { foo.bar() }
@@ -113,6 +117,7 @@ class MonoTest {
 
             }
         }
+
         val foo = mock<Foo> {}
         Mono.empty<Int>()
             .doOnEach { foo.bar() }
@@ -128,6 +133,7 @@ class MonoTest {
 
             }
         }
+
         val foo = mock<Foo> {}
         Mono.fromCallable { throw IllegalStateException() }
             .doOnEach { foo.bar() }
@@ -144,6 +150,7 @@ class MonoTest {
 
             }
         }
+
         val foo = mock<Foo> {}
         Mono.just(1)
             .flatMap { Mono.empty<Int>() }
@@ -207,10 +214,45 @@ class MonoTest {
                 // 만약에 여기서 어떤 일을 하는데 너무너무 오래걸리는 경우를 감지하려면 어떻게 할까?
                 it * 2
             }
-            // 여기서 지정한 duration만큼 기다리는 MonoDelay를 schedule에 등록시키는 방식으로 timeout을 감지한다
-            // .timeout(Duration.ofMillis(1)) // MonoTimeout
+        // 여기서 지정한 duration만큼 기다리는 MonoDelay를 schedule에 등록시키는 방식으로 timeout을 감지한다
+        // .timeout(Duration.ofMillis(1)) // MonoTimeout
         multi.subscribe()
         val result = multi.block()
         assertThat(result).isEqualTo(2)
     }
+
+
+    fun a(): Mono<Int> {
+        println("get a")
+        return Mono.just(1)
+    }
+
+    fun b1(): Mono<String> {
+        println("b1")
+        val ar = a().block()
+        println(ar)
+        return Mono.just("b1")
+    }
+
+    fun b2(): Mono<String> {
+        println("b2")
+        val ar = a().block()
+        println(ar)
+        return Mono.just("b2")
+    }
+
+    @Test
+    fun `cache된 mono에 동시에 접근했을 때 cache가 잘 동작하는지`() {
+        Mono.zip(b1(), b2()).block()
+
+        val cached = Mono.just(1).map {
+            println("Read 1")
+            it
+        }.delayElement(Duration.ofSeconds(3)).cache()
+
+
+        cached.map { println("first") }.block()
+        cached.map { println("second") }.block()
+    }
+
 }

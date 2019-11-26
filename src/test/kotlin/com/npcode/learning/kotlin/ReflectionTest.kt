@@ -1,6 +1,10 @@
 package com.npcode.learning.kotlin
 
 import com.npcode.learning.kotlin.EmptyFactory.Companion.dummy
+import im.toss.test.equalsTo
+import net.bytebuddy.ByteBuddy
+import net.bytebuddy.implementation.FixedValue
+import net.bytebuddy.matcher.ElementMatchers
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import kotlin.reflect.KClass
@@ -43,6 +47,33 @@ class ReflectionTest {
         System.out.println(foo)
     }
 
+    interface Foo1 {
+        fun foo(): Int
+    }
+
+    @Test
+    fun createDummyInstanceOfInterface() {
+        /*
+        val foo: Foo1 = dummy()
+        foo.foo().equalsTo(0)
+         */
+        val cls = Foo1::class.java
+        val classLoader = cls.classLoader
+        val byteBuddy = ByteBuddy()//.with(TypeValidation.DISABLED)
+        val foo = byteBuddy.subclass(cls)
+            .annotateType(*cls.annotations)
+            .method(ElementMatchers.returns(Int::class.java))
+            .intercept(FixedValue.value(0))
+                /*
+            .method(ElementMatchers.isToString())
+            .intercept(FixedValue.value("hello"))
+                 */
+            .make()
+            .load(classLoader)
+            .loaded
+        foo.newInstance().foo().equalsTo(0)
+        // mockk의 경우 bytebuddy를 써서 인스턴스를 만들어낸다. 그게 외엔 방법이 없나?
+    }
 }
 
 class EmptyFactory {
@@ -156,13 +187,25 @@ data class GeneratorImpl2<T>(
     override fun anyBoolean() = boolValues.next()
 }
 
+fun check(x: Int) = true
+
 class ParameterCounter<T>: Generator<T> {
 
+
     var boolCount = 0
-    var intRanges: MutableList<Iterable<Int>> = mutableListOf()
-    var enumCount: MutableMap<KClass<out Any>, Int> = mutableMapOf()
+    val intRanges: MutableList<Iterable<Int>> = mutableListOf()
+    val enumCount: MutableMap<KClass<out Any>, Int> = mutableMapOf()
 
     override fun <U : Any> anyEnum(enumClass: KClass<U>): U {
+
+        val x = 123
+
+        val foo = when {
+            check(x) -> 999
+            x is Int -> 555
+            else -> 888
+        }
+
         enumCount[enumClass] = (enumCount[enumClass] ?: 0) + 1
         return enumClass.java.enumConstants.first()
     }
@@ -287,4 +330,34 @@ fun <T> combination(gen: Generator<T>.() -> T): Set<T> {
             }.toMap()
         ).generate(gen)
     }.toSet()
+}
+
+class DescriptionGenerator<T>: Generator<T> {
+
+    val descItems: MutableList<String> = mutableListOf()
+
+    override fun <U : Any> anyEnum(enumClass: KClass<U>): U {
+        descItems.add("임의의 $enumClass")
+        return enumClass.java.enumConstants.first()
+    }
+
+    override fun anyInt(range: Iterable<Int>): Int {
+        descItems.add("$range 중 하나의 Int")
+        return 0
+    }
+
+    override fun anyBoolean(): Boolean {
+        descItems.add("임의의 Boolean")
+        return true
+    }
+
+    fun description(gen: Generator<T>.() -> T): String {
+        gen.invoke(this)
+        return descItems.joinToString(" / ")
+    }
+}
+
+fun <T> combinationDescription(gen: Generator<T>.() -> T): String {
+    val descriptionGenerator = DescriptionGenerator<T>()
+    return descriptionGenerator.description(gen)
 }
