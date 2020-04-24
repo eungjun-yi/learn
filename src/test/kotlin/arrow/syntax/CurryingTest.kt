@@ -74,3 +74,4 @@ data class Baz(
 ) {
     operator fun invoke(y: String) = "$x $y"
 }
+

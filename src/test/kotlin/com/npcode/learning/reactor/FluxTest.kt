@@ -1,4 +1,5 @@
 package com.npcode.learning.reactor
+import im.toss.test.equalsTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.slf4j.Logger
@@ -635,5 +636,13 @@ class FluxTest {
             seq.iterator().next()
         } catch (e: RuntimeException) {
         }
+    }
+
+    @Test
+    fun concatWithError() {
+        val a = Flux.just(1).mergeWith(Flux.error(java.lang.RuntimeException())).mergeWith(Flux.just(2))
+        val b = Flux.just(3, 4, 5)
+
+        a.concatWith(b).onErrorContinue { _, _ -> }.collectList().block().equalsTo(listOf(1, 2, 3, 4, 5))
     }
 }
