@@ -1,6 +1,7 @@
 package org.springframework.data.redis.core
 
 import im.toss.test.equalsTo
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.serializer.RedisSerializationContext
@@ -9,7 +10,8 @@ import redis.embedded.RedisServer
 class ReactiveHashOperationsIntegrationTest {
 
     @Test
-    fun test() {
+    @DisplayName("ReactiveHashOperations.put() returns true only if the value is created")
+    fun testReactiveHashOperationsPut() {
         val redisServer = RedisServer(6379)
         redisServer.start()
 
@@ -27,6 +29,7 @@ class ReactiveHashOperationsIntegrationTest {
         val value = "a"
 
         ops.put(key, hkey, value).block().equalsTo(true)
+        ops.put(key, hkey, value).block().equalsTo(false)
         ops.put(key, hkey, value).block().equalsTo(false)
 
         redisServer.stop()
