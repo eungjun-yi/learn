@@ -13,7 +13,10 @@ import org.springframework.data.redis.connection.lettuce.LettuceClientConfigurat
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import redis.embedded.RedisServer
+import java.lang.Thread.sleep
 import java.time.Duration
+import java.time.Instant
+import java.time.LocalDateTime
 
 class ReactiveHashOperationsIntegrationTest {
 
@@ -86,5 +89,38 @@ class ReactiveHashOperationsIntegrationTest {
         redisServer.stop()
 
         ops.put(key, hkey, value).block()
+    }
+
+    @Test
+    @DisplayName("Redis command execution via Lettuce connection may be blocked because of other execution")
+    fun testRedisCommand() {
+        val redisServer = RedisServer(6379)
+        redisServer.start()
+
+        val lettuceConnectionFactory = LettuceConnectionFactory()
+        val redisTemplate = ReactiveRedisTemplate(
+            lettuceConnectionFactory,
+            RedisSerializationContext.string()
+        )
+        lettuceConnectionFactory.afterPropertiesSet()
+
+        val ops = redisTemplate.opsForHash<String, String>()
+
+        val key = "person"
+        val hkey = "name"
+        val value = "a"
+
+        ops.put(key, hkey, value).map {
+            println("1: Don't sleep and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
+        }.log().subscribe()
+        ops.put(key, hkey, value).map {
+            Thread.sleep(1000)
+            println("2: Sleep 1s and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
+        }.log().subscribe()
+        ops.put(key, hkey, value).map {
+            println("3: Don't sleep and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
+        }.log().block()
+
+        redisServer.stop()
     }
 }
