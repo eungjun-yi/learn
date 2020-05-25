@@ -5,17 +5,18 @@ import io.lettuce.core.ClientOptions
 import io.lettuce.core.TimeoutOptions
 import io.lettuce.core.event.DefaultEventPublisherOptions
 import io.lettuce.core.resource.DefaultClientResources
-import io.lettuce.core.tracing.BraveTracing
+import io.lettuce.core.resource.DefaultEventLoopGroupProvider
+import io.netty.util.concurrent.DefaultEventExecutorGroup
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.serializer.RedisSerializationContext
+import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import redis.embedded.RedisServer
-import java.lang.Thread.sleep
 import java.time.Duration
-import java.time.Instant
 import java.time.LocalDateTime
 
 class ReactiveHashOperationsIntegrationTest {
@@ -120,6 +121,51 @@ class ReactiveHashOperationsIntegrationTest {
         ops.put(key, hkey, value).map {
             println("3: Don't sleep and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
         }.log().block()
+
+        redisServer.stop()
+    }
+
+    @Test
+    fun publishOnAnotherThread() {
+        val redisServer = RedisServer(6379)
+        redisServer.start()
+
+        val eventExecutorGroup = DefaultEventLoopGroupProvider.createEventLoopGroup(
+            DefaultEventExecutorGroup::class.java,
+            4
+        )
+        val clientResources = DefaultClientResources.builder()
+            .eventExecutorGroup(eventExecutorGroup)
+            .build()
+        val lettuceConnectionFactory = LettuceConnectionFactory(
+            RedisStandaloneConfiguration(),
+            LettuceClientConfiguration.builder()
+                .clientResources(clientResources)
+                .build()
+        )
+        val redisTemplate = ReactiveRedisTemplate(
+            lettuceConnectionFactory,
+            RedisSerializationContext.string()
+        )
+        lettuceConnectionFactory.afterPropertiesSet()
+
+        val ops = redisTemplate.opsForHash<String, String>()
+
+        val key = "person"
+        val hkey = "name"
+
+        ops.put(key, hkey, "a").publishOn(Schedulers.parallel()).map {
+            println("1: Don't sleep and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
+        }.log().subscribe()
+        ops.put(key, hkey, "b").publishOn(Schedulers.parallel()).map {
+            Thread.sleep(1000)
+            println("2: Sleep 1s and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
+        }.log().subscribe()
+        ops.put(key, hkey, "c").publishOn(Schedulers.parallel()).map {
+            println("3: Don't sleep and print | now= ${LocalDateTime.now()} thread= ${Thread.currentThread()}")
+        }.log().subscribe()
+
+        Mono.delay(Duration.ofSeconds(2)).block()
 
         redisServer.stop()
     }
