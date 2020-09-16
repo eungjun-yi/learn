@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.PropertyAccessor
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -79,6 +80,24 @@ class JacksonTest {
                 mapper.readValue<SuperA>(mapper.writeValueAsString(it)).equalsTo(it)
             }
         }
+    }
+
+    @Test
+    fun namingStrategy() {
+        val mapper = ObjectMapper().registerKotlinModule()
+        /*
+        mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+         */
+
+        data class Foo(
+            val UPPER_CASE_NAME: String = "a",
+            val mixedCaseName: String = "b"
+        )
+
+        val foo = Foo()
+
+        println(mapper.writeValueAsString(foo))
     }
 }
 

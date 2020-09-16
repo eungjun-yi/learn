@@ -254,5 +254,4 @@ class MonoTest {
         cached.map { println("first") }.block()
         cached.map { println("second") }.block()
     }
-
 }

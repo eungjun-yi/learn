@@ -113,4 +113,24 @@ class MockkTest {
         fun start(event: Event)
         fun end(event: Event)
     }
+
+    @Test
+    fun `argument type 정확히 매칭하는 verify`() {
+        val myService = spyk(MyService())
+
+        myService.doSomething(MyTarget1())
+
+        verify(exactly = 1) { myService.doSomething(ofType<MyTarget1>()) }
+        verify(exactly = 0) { myService.doSomething(ofType<MyTarget2>()) }
+    }
+
+    class MyService {
+        fun doSomething(target: MyTarget) { }
+    }
+
+    interface MyTarget
+
+    class MyTarget1: MyTarget
+
+    class MyTarget2: MyTarget
 }

@@ -1,10 +1,15 @@
 package com.npcode.learning.reactor
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.awaitBody
 import reactor.test.test
 
 class WebClientTest {
+
     @Test
     fun testErrorHandling() {
         val client = WebClient.create()
@@ -22,6 +27,22 @@ class WebClientTest {
                 .block()
 
         System.out.println(html)
+    }
+
+    @Test
+    fun handleErrorByCoroutine() {
+        val client = WebClient.create()
+
+        // 404 not found
+        assertThrows<WebClientResponseException.NotFound> {
+            runBlocking {
+                client.get()
+                    .uri("http://example.org/foo")
+                    .accept(MediaType.TEXT_HTML)
+                    .retrieve()
+                    .awaitBody<String>()
+            }
+        }
     }
 
     @Test

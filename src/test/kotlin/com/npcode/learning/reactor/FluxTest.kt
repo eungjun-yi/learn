@@ -645,4 +645,19 @@ class FluxTest {
 
         a.concatWith(b).onErrorContinue { _, _ -> }.collectList().block().equalsTo(listOf(1, 2, 3, 4, 5))
     }
+
+    @Test
+    fun FluxOfEmptyMono() {
+        Flux.just(
+            Mono.just(1),
+            Mono.empty(),
+            Mono.just(2)
+        ).flatMap { it }.collectList().block().equalsTo(listOf(1, 2))
+    }
+
+    @Test
+    fun take20() {
+        println(Flux.just(1, 2, 3).take(Duration.ofDays(1)).take(1).collectList().block())
+    }
+
 }

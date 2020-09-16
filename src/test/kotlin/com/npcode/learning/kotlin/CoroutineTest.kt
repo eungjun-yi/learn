@@ -184,4 +184,27 @@ class CoroutineTest {
         threadName2.doesNotEqualTo(threadName3)
         threadName2.doesNotEqualTo(threadName4)
     }
+
+    @Test
+    fun callSuspendFunctionTest() {
+        runBlocking {
+            foo(::bar1)
+        }
+    }
+
+    @Test
+    fun callSuspendFunctionTest2() {
+        runBlocking {
+            foo(::bar2)
+        }
+    }
+
+    suspend fun foo(bar: suspend () -> Unit) = bar()
+
+    fun bar1() = 1
+
+    suspend fun bar2(): Int {
+        delay(1)
+        return 1
+    }
 }
