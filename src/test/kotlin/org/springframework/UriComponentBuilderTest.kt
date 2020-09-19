@@ -1,4 +1,4 @@
-package spring
+package org.springframework
 
 import im.toss.test.equalsTo
 import org.junit.jupiter.api.Test
