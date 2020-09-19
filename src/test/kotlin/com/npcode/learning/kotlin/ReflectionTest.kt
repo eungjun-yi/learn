@@ -10,6 +10,7 @@ import java.math.BigDecimal
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.memberProperties
 
 class ReflectionTest {
 
@@ -73,6 +74,18 @@ class ReflectionTest {
             .loaded
         foo.newInstance().foo().equalsTo(0)
         // mockk의 경우 bytebuddy를 써서 인스턴스를 만들어낸다. 그게 외엔 방법이 없나?
+    }
+
+    @Test
+    fun testGettingFields() {
+        data class Foo(
+            val a: String
+        )
+
+        Foo(a = "test").run {
+            this::class.memberProperties.size.equalsTo(1)
+            this::class.memberProperties.first().call(this).equalsTo("test")
+        }
     }
 }
 

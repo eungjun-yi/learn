@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        kotlinVersion = '1.4.0'
-        springBootVersion = '2.2.7.RELEASE'
+        kotlinVersion = '1.4.10'
+        springBootVersion = '2.2.10.RELEASE'
         koin_version = '2.0.0-GA6'
         arrowVersion = "0.10.2"
         koTestVersion = "4.1.1"
@@ -20,8 +20,8 @@ buildscript {
 plugins {
     id 'java'
     id "net.ltgt.apt" version "0.10"
-    id "org.jetbrains.kotlin.jvm" version "1.4.0"
-    id "org.jetbrains.kotlin.kapt" version "1.4.0"
+    id "org.jetbrains.kotlin.jvm" version "1.4.10"
+    id "org.jetbrains.kotlin.kapt" version "1.4.10"
 }
 
 apply plugin: 'kotlin-spring'
@@ -59,7 +59,7 @@ dependencies {
     implementation('io.projectreactor.tools:blockhound:1.0.3.RELEASE')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
+
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.nhaarman:mockito-kotlin:1.6.0')
@@ -107,6 +107,14 @@ dependencies {
 
     // gson
     testImplementation "com.google.code.gson:gson:2.8.6"
+
+    // jackson at test
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:2.11.2"
+    testImplementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.2"
+
+    // rest assured
+    testImplementation("io.rest-assured:kotlin-extensions:4.1.2")
+    testImplementation("io.rest-assured:rest-assured:4.1.2")
 }
 
 compileKotlin {
