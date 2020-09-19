@@ -94,6 +94,6 @@ class WebClientTest {
 
         // 서버가 HTTP 메시지 전송을 완료했지만, 클라이언트가 body를 subscribe 하지는 않은 이 시점에서 서버가 커넥션을 끊으면?
         // HTTP 메시지 전송이 끝났나기만 했다면 아무 에러가 없다.
-        body.map { System.out.println(it) }.block()
+        body!!.map { System.out.println(it) }.block()
     }
 }

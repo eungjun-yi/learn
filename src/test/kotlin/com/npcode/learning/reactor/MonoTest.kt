@@ -161,25 +161,6 @@ class MonoTest {
     }
 
     @Test
-    fun nullToEmptyMono() {
-        assertThrows<NullPointerException> {
-            Mono.just(null)
-        }
-
-        assertThrows<NullPointerException> {
-            Mono.just(1).map { null }.block()
-        }
-
-        val x: Int? = null
-
-        assertThrows<NullPointerException> {
-            Mono.just(1).map { x }.filter { it != null }.block()
-        }
-
-        Mono.just(1).flatMap { x?.toMono() ?: Mono.empty() }
-    }
-
-    @Test
     fun zipWitEmpty() {
         // then을 쓰면 될까? 안되잖아
         val value: Mono<Int> = Mono.just(1)

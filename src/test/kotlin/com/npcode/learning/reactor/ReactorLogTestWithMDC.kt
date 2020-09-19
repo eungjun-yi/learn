@@ -224,7 +224,7 @@ class ReactorLogTestWithMDC {
             if (signal.type == SignalType.ON_NEXT) {
                 val userNo: Long = signal.context["userNo"]
                 MDC.putCloseable("userNo", userNo.toString()).use {
-                    logStatement.invoke(signal.get())
+                    logStatement.invoke(signal.get()!!)
                 }
             }
         }
@@ -234,7 +234,7 @@ class ReactorLogTestWithMDC {
             val context = signal.context
             val throwable = signal.throwable
             if (signal.type == SignalType.ON_ERROR) {
-                logError(context, logStatement, throwable)
+                logError(context, logStatement, throwable!!)
             }
         }
 
