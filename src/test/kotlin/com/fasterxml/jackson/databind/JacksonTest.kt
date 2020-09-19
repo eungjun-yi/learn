@@ -7,11 +7,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import im.toss.test.doesNotEqualTo
 import im.toss.test.equalsTo
-import io.kotest.matchers.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -98,24 +96,6 @@ class JacksonTest {
         val foo = Foo()
 
         println(mapper.writeValueAsString(foo))
-    }
-
-    @Test
-    fun range() {
-        val objectMapper = ObjectMapper().registerKotlinModule()
-        objectMapper.writeValueAsString(1..10) shouldBe "{\"start\":1,\"end\":10}"
-        objectMapper.readValue<IntRange>("{\"start\":1,\"end\":10}") shouldBe 1..10
-    }
-
-    @Test
-    fun dateRange() {
-        val objectMapper =
-            ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
-        val closedRange =
-            LocalDate.of(2020, 1, 1)..LocalDate.of(2020, 1, 2)
-
-        objectMapper.writeValueAsString(closedRange) shouldBe "{\"start\":1,\"end\":10}"
-        objectMapper.readValue<IntRange>("{\"start\":1,\"end\":10}") shouldBe 1..10
     }
 }
 

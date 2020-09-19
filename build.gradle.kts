@@ -77,12 +77,6 @@ dependencies {
 	implementation("io.arrow-kt:arrow-core:${Versions.arrowVersion}")
 	implementation("io.arrow-kt:arrow-syntax:${Versions.arrowVersion}")
 
-	// koTest
-	testImplementation("io.kotest:kotest-runner-junit5-jvm:${Versions.kotestVersion}") // for kotest framework
-	testImplementation("io.kotest:kotest-assertions-core-jvm:${Versions.kotestVersion}") // for kotest core jvm assertions
-	testImplementation("io.kotest:kotest-property-jvm:${Versions.kotestVersion}") // for kotest property test
-	testImplementation("io.kotest:kotest-runner-console-jvm:${Versions.kotestVersion}")
-
 	// gson
 	testImplementation("com.google.code.gson:gson:2.8.6")
 
