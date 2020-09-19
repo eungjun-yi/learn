@@ -87,8 +87,9 @@ dependencies {
 	testImplementation("com.google.code.gson:gson:2.8.6")
 
 	// jackson
-	testImplementation("com.fasterxml.jackson.core:jackson-databind:2.11.2")
-	testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.2")
+	testImplementation("com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonVersion}")
+	testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonVersion}")
+	testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonVersion}")
 
 	// rest assured
 	testImplementation("io.rest-assured:kotlin-extensions:4.1.2")
