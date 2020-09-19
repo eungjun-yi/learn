@@ -2,7 +2,7 @@ buildscript {
     ext {
         kotlinVersion = '1.4.10'
         springBootVersion = '2.2.10.RELEASE'
-        koin_version = '2.0.0-GA6'
+        koin_version = '2.2.0-alpha-1'
         arrowVersion = "0.10.2"
         koTestVersion = "4.1.1"
     }
