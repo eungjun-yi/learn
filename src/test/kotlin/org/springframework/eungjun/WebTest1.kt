@@ -35,5 +35,4 @@ class WebTest1(
             body(Matchers.equalTo("Hola, foo"))
         }
     }
-
 }
