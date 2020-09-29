@@ -98,6 +98,12 @@ dependencies {
 
 	// springmockk
 	testImplementation("com.ninja-squad:springmockk:2.0.3")
+
+	// kotest
+	testImplementation("io.kotest:kotest-assertions-core-jvm:4.2.0")
+	testImplementation("io.kotest:kotest-runner-console-jvm:4.1.3.2")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:4.2.0")
+	testImplementation("io.kotest:kotest-property:4.2.0")
 }
 
 tasks.withType<Test> {
