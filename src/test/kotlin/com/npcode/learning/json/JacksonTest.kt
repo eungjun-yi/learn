@@ -1,6 +1,8 @@
-package com.fasterxml.jackson.databind
+package com.npcode.learning.json
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -97,6 +99,11 @@ class JacksonTest {
 
         println(mapper.writeValueAsString(foo))
     }
+
+    @Test
+    fun voidTest() {
+        val voidHolder = ObjectMapper().registerKotlinModule().readValue<VoidHolder>("{\"value1\":1}")
+    }
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -109,3 +116,8 @@ data class SubA1(
 data class SubA2(
     val value: String = "222"
 ): SuperA
+
+data class VoidHolder(
+    val value1: Int,
+    val value2: Nothing?
+)
