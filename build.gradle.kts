@@ -6,6 +6,7 @@ plugins {
 	kotlin("jvm") version Versions.kotlinVersion
 	kotlin("plugin.spring") version Versions.kotlinVersion
 	kotlin("kapt") version Versions.kotlinVersion
+	kotlin("plugin.serialization") version Versions.kotlinVersion
 }
 
 group = "com.github.eungjun-yi"
@@ -104,6 +105,8 @@ dependencies {
 	testImplementation("io.kotest:kotest-runner-console-jvm:4.1.3.2")
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:4.2.0")
 	testImplementation("io.kotest:kotest-property:4.2.0")
+
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
 }
 
 tasks.withType<Test> {
