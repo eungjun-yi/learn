@@ -1,12 +1,18 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    jacoco
+
 	id("org.springframework.boot") version Versions.springBootVersion
 	id("io.spring.dependency-management") version "1.0.10.RELEASE"
 	kotlin("jvm") version Versions.kotlinVersion
 	kotlin("plugin.spring") version Versions.kotlinVersion
 	kotlin("kapt") version Versions.kotlinVersion
 	kotlin("plugin.serialization") version Versions.kotlinVersion
+}
+
+jacoco {
+    toolVersion = "0.8.6"
 }
 
 group = "com.github.eungjun-yi"
