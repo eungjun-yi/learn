@@ -7,6 +7,8 @@ import io.lettuce.core.event.DefaultEventPublisherOptions
 import io.lettuce.core.resource.DefaultClientResources
 import io.lettuce.core.resource.DefaultEventLoopGroupProvider
 import io.netty.util.concurrent.DefaultEventExecutorGroup
+import org.junit.Ignore
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
@@ -19,6 +21,7 @@ import redis.embedded.RedisServer
 import java.time.Duration
 import java.time.LocalDateTime
 
+@Disabled
 class ReactiveHashOperationsIntegrationTest {
 
     @Test

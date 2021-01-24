@@ -3,7 +3,7 @@ package com.npcode.learning
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
-internal class SealedParentTest {
+internal class WhenSealedCoverageTest {
 
     @Test
     fun test() {

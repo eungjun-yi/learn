@@ -1,7 +1,7 @@
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
-class FunctionalInterfaceTest {
+class FunInterfaceTest2 {
     private val user = User(money = 100)
 
     @Test

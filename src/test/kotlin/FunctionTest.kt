@@ -70,4 +70,3 @@ inline fun <reified T> ref(): T {
         else -> throw RuntimeException()
     }
 }
-

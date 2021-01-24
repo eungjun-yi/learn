@@ -1,6 +1,7 @@
 package com.npcode.learning
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 
 class StringInterpolationTest {
@@ -12,6 +13,7 @@ class StringInterpolationTest {
         assertThat(map.toString()).isEqualTo("{abc=def}")
     }
 
+    @Ignore
     @Test
     fun hashCollision() {
         System.out.println(findWord("", "INVALID_USER".hashCode()))

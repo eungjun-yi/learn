@@ -146,46 +146,6 @@ class CoroutineTest {
     }
 
     @Test
-    fun testThread() {
-        var threadName1: String = ""
-        var threadName2: String = ""
-        var threadName3: String = ""
-        var threadName4: String = ""
-
-        runBlocking {
-            coroutineScope {
-                Mono.just(1)
-                    .map {
-                        threadName1 = Thread.currentThread().name
-                    }
-                    .delayElement(Duration.ofMillis(100))
-                    .map {
-                        threadName2 = Thread.currentThread().name
-                    }.awaitSingle()
-
-                Mono.just(2)
-                    .map {
-                        threadName3 = Thread.currentThread().name
-                    }
-                    .delayElement(Duration.ofMillis(100))
-                    .map {
-                        threadName4 = Thread.currentThread().name
-                    }.awaitSingle()
-            }
-        }
-
-        threadName1.doesNotEqualTo("")
-        threadName1.doesNotEqualTo("")
-        threadName1.doesNotEqualTo("")
-        threadName1.doesNotEqualTo("")
-
-        threadName1.doesNotEqualTo(threadName2)
-        threadName1.equalsTo(threadName3)
-        threadName2.doesNotEqualTo(threadName3)
-        threadName2.doesNotEqualTo(threadName4)
-    }
-
-    @Test
     fun callSuspendFunctionTest() {
         runBlocking {
             foo(::bar1)

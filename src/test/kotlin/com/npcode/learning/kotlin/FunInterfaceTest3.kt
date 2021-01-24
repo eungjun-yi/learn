@@ -1,46 +1,27 @@
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
-class FunInterfaceTest2 {
-    private val user = User(money = 100)
+class FunInterfaceTest3 {
 
-    @Test
-    fun testFunctionType() {
-        val isRich: User.() -> Boolean = { money > 10 }
-        user.isRich() shouldBe true
-    }
-
-    @Test
-    fun testTypeAlias() {
-        val isRich: UserIsRich1 = { money > 10 }
-        user.isRich() shouldBe true
-    }
-
-    @Test
-    fun testFunctionalInterface() {
-        UserIsRich2 { money > 10 }.run {
-            user.isRich() shouldBe true
-        }
-    }
-
-    @Test
-    fun testFunctionalInterface2() {
-        val userIsRich = UserIsRich3 { it.money > 10 }
-        val isRich: User.() -> Boolean = { userIsRich(this) }
-        UserIsRich2 { money > 10 }.run {
-            user.isRich() shouldBe true
-        }
-    }
 }
 
-data class User(val money: Int = 0)
-
-typealias UserIsRich1 = User.() -> Boolean
-
-fun interface UserIsRich2 {
-    fun User.isRich(): Boolean
+fun interface Foo1 {
+    operator fun invoke(x: Int, y: Int)
 }
 
-fun interface UserIsRich3 {
-    operator fun invoke(user: User): Boolean
+fun interface Foo2 {
+    operator fun invoke(x: Int)
+}
+
+// 1. fun interface는 파라메터가 디폴트값을 가질 수 없다.
+// 2. fun interface는 2개 이상의 메서드를 가질 수 없다.
+// 3. overriding function은 디폴트값을 가질 수 없다.
+// 따라서 이 정도가 최선이다.
+// 아니면 parameter object를 만드는 방법도 있다. 호출 코드는 좀 길어지겠지만.
+class Foo12: Foo1, Foo2 {
+    override operator fun invoke(x: Int, y: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override operator fun invoke(x: Int) = invoke(x, 1)
 }

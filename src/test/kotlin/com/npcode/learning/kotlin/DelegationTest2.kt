@@ -1,31 +1,29 @@
 package com.npcode.learning.kotlin
 
-import im.toss.test.equalsTo
-import org.junit.jupiter.api.Test
+class DelegationTest2 {
+    data class DefaultCommonPart(
+        override val a: String,
+        override val b: String
+    ): CommonPart
 
-class DelegationTest {
-
-    interface A: B {
-        fun a(): Int
+    interface CommonPart {
+        val a: String
+        val b: String
     }
 
-    interface B {
-        fun b(): Int
-    }
+    data class MyDataClass(
+        val common: DefaultCommonPart, // 이것을 숨기기 어렵다. private으로 하면 copy가 안됨
+        val c: String,
+    ): CommonPart by common
 
-    class FooA: A {
-        override fun b() = 1
-        override fun a() = 1
-    }
+    private fun DefaultCommonPart.emptyA() = copy(a = "")
 
-    class FooB: B {
-        override fun b() = 2
-    }
+    fun test() {
+        val data1 = MyDataClass(
+            common = DefaultCommonPart(a = "a", b = "b"),
+            c = "c"
+        )
 
-    @Test
-    fun `위임을 하면 어느 한 쪽이 덮어쓴다`() {
-        val x: A = object: A by FooA(), B by FooB() {
-            override fun b() = 3
-        }
+        val data2 = data1.run { copy(common = common.emptyA()) }
     }
 }

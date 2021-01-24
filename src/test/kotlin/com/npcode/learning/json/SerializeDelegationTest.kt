@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.gson.GsonBuilder
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test
 class SerializeDelegationTest{
     private val jackson = ObjectMapper().registerKotlinModule()
     private val gson = GsonBuilder().create()
+    private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
     private val json = "{\"a\":\"b\",\"b\":\"c\"}"
 
     @Test
@@ -30,6 +33,19 @@ class SerializeDelegationTest{
         // kotlinx는 위임된 클래스의 역직렬화를 하지 못한다.
         Json.decodeFromString<Foo>(json).b shouldBe "c"
         Json.decodeFromString<Bar>(json).b shouldBe "c"
+
+        // moshi는
+        /*
+        moshi.adapter(Foo::class.java).fromJson(json)!!.a shouldBe "b"
+        moshi.adapter(Foo::class.java).fromJson(json)!!.b shouldBe "b"
+        moshi.adapter(Bar::class.java).fromJson(json)!!.a shouldBe "c"
+        moshi.adapter(Bar::class.java).fromJson(json)!!.b shouldBe "c"
+         */
+
+        // moshi.adapter(Delegated1::class.java).fromJson(json)!!.b shouldBe "c"
+        moshi.adapter(Delegated2::class.java).fromJson(json)!!.b shouldBe "c"
+        moshi.adapter(Delegated3::class.java).fromJson(json)!!.b shouldBe "c"
+        moshi.adapter(Delegated4::class.java).fromJson(json)!!.b shouldBe "c"
 
         // 실패
         // gson.fromJson("{\"a\":\"b\",\"b\":\"c\"}", Baz::class.java).b shouldBe "c"

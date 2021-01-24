@@ -1,5 +1,6 @@
 package com.npcode.learning.json
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import im.toss.test.doesNotEqualTo
 import im.toss.test.equalsTo
+import io.kotest.matchers.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
@@ -104,6 +106,14 @@ class JacksonTest {
     fun voidTest() {
         val voidHolder = ObjectMapper().registerKotlinModule().readValue<VoidHolder>("{\"value1\":1}")
     }
+
+    @Test
+    fun writePrivateFields() {
+        // Jackson은 private field에 쓰려면 annotation으로 설정이 필요하다.
+        ObjectMapper().registerKotlinModule()
+            .readValue<PrivateFieldContainer>("{\"value\":1}")
+            .toPublicFieldContainer().value shouldBe 1
+    }
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -121,3 +131,27 @@ data class VoidHolder(
     val value1: Int,
     val value2: Nothing?
 )
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+interface PrivateFieldContainer {
+    val value: Int
+    fun toPublicFieldContainer() = PublicFieldContainer(value)
+}
+
+data class PublicFieldContainer(
+    val value: Int,
+)
+
+fun foo() {
+    bar() ?: return run {
+        doSomething()
+    }
+
+    // do something
+}
+
+fun bar(): String? {
+    return null
+}
+
+fun doSomething(): Int = 1234
