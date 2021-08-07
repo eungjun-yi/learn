@@ -46,10 +46,10 @@ dependencies {
 	testImplementation("io.mockk:mockk:1.9.1")
 
 	// coroutine
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.3.7")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.7")
-	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.3.7")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutineVersion}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${Versions.kotlinCoroutineVersion}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.kotlinCoroutineVersion}")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Versions.kotlinCoroutineVersion}")
 
 	// spring
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
