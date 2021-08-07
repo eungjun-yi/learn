@@ -3,6 +3,13 @@ package com.npcode.learning.kotlin
 import im.toss.test.doesNotEqualTo
 import im.toss.test.equalsTo
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.take
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitLast
@@ -16,6 +23,7 @@ import java.time.Duration
 
 class CoroutineTest {
 
+    /*
     @Test
     fun testBridging() {
         bridging()
@@ -38,7 +46,10 @@ class CoroutineTest {
         }
 
         println("Coroutine scope is over") // This line is not printed until nested launch completes
+
+        actor { channel }
     }
+     */
 
     @Test
     fun testSuspendFunction() {
@@ -166,5 +177,22 @@ class CoroutineTest {
     suspend fun bar2(): Int {
         delay(1)
         return 1
+    }
+
+    @Test
+    fun testProducer() {
+        val produced = GlobalScope.produce(Dispatchers.Default) {
+            println("a")
+            send(1L)
+            println("b")
+            send(3L)
+            println("c")
+            send(5L)
+        }
+
+        println(runBlocking { produced.receive() })
+
+        // Channel operators are deprecated in favour of Flow and will be removed in 1.4
+        produced.consumeAsFlow().take(1)
     }
 }

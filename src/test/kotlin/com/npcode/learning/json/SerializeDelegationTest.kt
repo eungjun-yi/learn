@@ -25,14 +25,19 @@ class SerializeDelegationTest{
         gson.fromJson(json, Bar::class.java).b shouldBe "c"
         gson.fromJson(json, Delegated3::class.java).b shouldBe "c"
         gson.fromJson(json, Delegated4::class.java).b shouldBe "c"
+        // gson.fromJson("{\"a\":\"b\",\"b\":\"c\"}", Baz::class.java).b shouldBe "c"
 
         // jackson은 위임된 클래스의 역직렬화를 하지 못한다.
         jackson.readValue<Foo>(json).b shouldBe "c"
         jackson.readValue<Bar>(json).b shouldBe "c"
+        // jackson.readValue<Baz>(json).b shouldBe "c"
+        // jackson.readValue<Baz2>(json).b shouldBe "c"
+        // jackson.readValue<Baz4>(json).b shouldBe "c"
 
         // kotlinx는 위임된 클래스의 역직렬화를 하지 못한다.
         Json.decodeFromString<Foo>(json).b shouldBe "c"
         Json.decodeFromString<Bar>(json).b shouldBe "c"
+        // Json.decodeFromString<Delegated2>(json).b shouldBe "c"
 
         // moshi는
         /*
@@ -42,17 +47,12 @@ class SerializeDelegationTest{
         moshi.adapter(Bar::class.java).fromJson(json)!!.b shouldBe "c"
          */
 
-        // moshi.adapter(Delegated1::class.java).fromJson(json)!!.b shouldBe "c"
+        /*
+        moshi.adapter(Delegated1::class.java).fromJson(json)!!.b shouldBe "c"
         moshi.adapter(Delegated2::class.java).fromJson(json)!!.b shouldBe "c"
         moshi.adapter(Delegated3::class.java).fromJson(json)!!.b shouldBe "c"
         moshi.adapter(Delegated4::class.java).fromJson(json)!!.b shouldBe "c"
-
-        // 실패
-        // gson.fromJson("{\"a\":\"b\",\"b\":\"c\"}", Baz::class.java).b shouldBe "c"
-        // jackson.readValue<Baz>(json).b shouldBe "c"
-        // jackson.readValue<Baz2>(json).b shouldBe "c"
-        // jackson.readValue<Baz4>(json).b shouldBe "c"
-        // Json.decodeFromString<Delegated2>(json).b shouldBe "c"
+         */
     }
 
     @Test
