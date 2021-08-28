@@ -26,4 +26,24 @@ class GsonTest {
         Gson().fromJson("{\"value\":1}", PrivateFieldContainer::class.java)
             .toPublicFieldContainer().value shouldBe 1
     }
+
+    @Test
+    fun handleMissingFields() {
+        with(Gson().fromJson("{\"a\":1}", TwoFieldsContainer::class.java)) {
+            a shouldBe 1
+            b shouldBe 0 // gson은 디폴트값을 무시해버린다.
+            // c shouldBe "" // gson은 디폴트값을 무시해버린다.
+        }
+    }
+
+    @Test
+    fun readNumber() {
+        Gson().fromJson("1", Any::class.java).toString() shouldBe "1.0"
+    }
 }
+
+data class TwoFieldsContainer(
+    val a: Int,
+    val b: Int,
+    val c: String = "3",
+)

@@ -19,6 +19,8 @@ import java.time.ZonedDateTime
 
 class JacksonTest {
 
+    private val objectMapper = ObjectMapper().registerKotlinModule()
+
     @Test
     fun test() {
         val items: List<String> =
@@ -110,9 +112,32 @@ class JacksonTest {
     @Test
     fun writePrivateFields() {
         // Jackson은 private field에 쓰려면 annotation으로 설정이 필요하다.
-        ObjectMapper().registerKotlinModule()
+        objectMapper
             .readValue<PrivateFieldContainer>("{\"value\":1}")
             .toPublicFieldContainer().value shouldBe 1
+    }
+
+    @Test
+    fun numberToAny() {
+        with(objectMapper.readValue<Any>("1")) {
+            toString() shouldBe "1"
+            this::class shouldBe Int::class
+        }
+    }
+
+    @Test
+    fun handleMissingFields() {
+        // com.fasterxml.jackson.databind.exc.MismatchedInputException: Missing required creator property 'b' (index 1)
+
+        // Caused by: com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: Instantiation of [simple type, class com.tossbank.mci.databody.dto.전자금융사용자기본조회_CEB28010004_001_V01_Res$Dto] value failed for JSON property CSTNO due to missing (therefore NULL) value for creator parameter CSTNO which is a non-nullable type
+        // at [Source: (BufferedReader); line: 1, column: 279] (through reference chain: com.tossbank.mci.telegram.telegrams.MciStandardTelegramResponse["DATAPART"]->java.util.ArrayList[0]->com.tossbank.mci.telegram.telegrams.data.DataResponsePart["DATABODY"]->com.tossbank.mci.databody.dto.전자금융사용자기본조회_CEB28010004_001_V01_Res$Dto["CSTNO"])
+
+        objectMapper
+            .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .readValue<TwoFieldsContainer>("{\"a\":1}").let {
+                it.a shouldBe 1
+                it.b shouldBe 2
+            }
     }
 }
 
