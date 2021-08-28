@@ -5,6 +5,8 @@ plugins {
 
 	id("org.springframework.boot") version Versions.springBootVersion
 	id("io.spring.dependency-management") version "1.0.10.RELEASE"
+	kotlin("plugin.jpa") version Versions.kotlinVersion
+	kotlin("plugin.allopen") version Versions.kotlinVersion
 	kotlin("jvm") version Versions.kotlinVersion
 	kotlin("plugin.spring") version Versions.kotlinVersion
 	kotlin("kapt") version Versions.kotlinVersion
@@ -58,6 +60,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.threeten:threetenbp:1.5.1")
 
 	// redis
 	implementation("com.github.kstyrc:embedded-redis:0.6")
@@ -98,11 +102,6 @@ dependencies {
 	testImplementation("io.rest-assured:json-path:4.1.2")
 	testImplementation("io.rest-assured:xml-path:4.1.2")
 
-	// spring
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
-	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-
 	// springmockk
 	testImplementation("com.ninja-squad:springmockk:2.0.3")
 
@@ -121,6 +120,9 @@ dependencies {
 	// feign
 	testImplementation("io.github.openfeign:feign-core:11.0")
 	testImplementation("io.github.openfeign:feign-gson:11.0")
+
+	// h2
+	implementation("com.h2database:h2")
 }
 
 tasks.withType<Test> {
