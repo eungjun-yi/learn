@@ -40,7 +40,7 @@ fun client() = client
 
 fun resourceFactory(): ReactorResourceFactory {
     val factory = ReactorResourceFactory()
-    factory.connectionProvider = ConnectionProvider.fixed("custom", 32)
+    factory.connectionProvider = ConnectionProvider.create("custom", 32)
     return factory
 }
 
