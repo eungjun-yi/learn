@@ -149,7 +149,7 @@ class CombinationFactory {
                 klass.isSubclassOf(CharSequence::class) -> charSequences
                 klass.isSubclassOf(Boolean::class) -> booleans
                 else -> {
-                    val constructor = klass.constructors.minBy { it.parameters.size }!!
+                    val constructor = klass.constructors.minByOrNull { it.parameters.size }!!
                     val params = constructor.parameters
                     val args = params.map {
                         val classifier = it.type.classifier

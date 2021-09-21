@@ -1,7 +1,9 @@
 package com.npcode.learning.kotlin
 
+import io.kotest.matchers.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import kotlin.reflect.full.isSubclassOf
 
 class ReifiedTest {
 
@@ -43,4 +45,26 @@ class ReifiedTest {
     }
 
     inline fun genName()  = {}
+
+    @Test
+    fun classTest() {
+        foo3(B()) shouldBe true
+        foo3(object: A {}) shouldBe true
+        foo3(C()) shouldBe false
+    }
+
+    interface A {
+
+    }
+
+    class B : A {
+
+    }
+
+    class C { }
+
+
+    inline fun <reified T: Any> foo3(t: T): Boolean{
+        return T::class.isSubclassOf(A::class)
+    }
 }
