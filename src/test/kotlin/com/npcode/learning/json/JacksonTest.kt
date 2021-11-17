@@ -1,6 +1,8 @@
 package com.npcode.learning.json
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -139,6 +141,20 @@ class JacksonTest {
                 it.b shouldBe 2
             }
     }
+
+    @Test
+    fun testMultipleConstructor() {
+        objectMapper
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .readValue<MultipleConstructor>("{\"b\":\"123\"}").a shouldBe 123
+    }
+}
+
+data class MultipleConstructor(
+    val a: Int
+) {
+    @JsonCreator
+    constructor(@JsonProperty("b") b: String) : this(a = b.toInt())
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -180,3 +196,4 @@ fun bar(): String? {
 }
 
 fun doSomething(): Int = 1234
+

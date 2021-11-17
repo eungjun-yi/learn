@@ -11,5 +11,6 @@ internal class MyTypeKtTest {
     fun typeName() {
         typeName(MyType.A) shouldBe "a"
         typeName(MyType.B) shouldBe "b"
+        typeName(null) shouldBe "b"
     }
 }

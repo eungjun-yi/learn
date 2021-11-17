@@ -1,5 +1,5 @@
 package com.npcode.learning.kotlin
 
 data class Person(
-    val name: String
+    val name: String,
 )

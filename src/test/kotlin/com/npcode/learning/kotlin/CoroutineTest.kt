@@ -1,13 +1,7 @@
 package com.npcode.learning.kotlin
 
-import im.toss.test.doesNotEqualTo
-import im.toss.test.equalsTo
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.channels.take
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.reactive.awaitFirst
@@ -19,7 +13,6 @@ import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.test
-import java.time.Duration
 
 class CoroutineTest {
 

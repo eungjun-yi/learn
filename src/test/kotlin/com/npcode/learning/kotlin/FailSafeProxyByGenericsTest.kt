@@ -61,3 +61,12 @@ class FailSafe6<R>(
         }
     }
 }
+
+fun test(a: Int): Int {
+    return when {
+        a > 10 -> 1
+        a == 8 -> 2
+        a == 4 -> 3
+        else -> 4
+    }
+}

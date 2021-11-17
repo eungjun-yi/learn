@@ -123,6 +123,9 @@ dependencies {
 
 	// h2
 	implementation("com.h2database:h2")
+
+	// immutable collection
+	implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.4")
 }
 
 tasks.withType<Test> {
