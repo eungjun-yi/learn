@@ -1,4 +1,4 @@
-package com.npcode.learning.kotlin
+package com.npcode.learning.kotlin.coverage
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test

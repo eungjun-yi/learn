@@ -1,4 +1,4 @@
-package com.npcode.learning.kotlin
+package com.npcode.learning.kotlin.coverage
 
 enum class MyType {
     A, B

@@ -1,5 +1,7 @@
-package com.npcode.learning.coroutine
+package com.npcode.learning.kotlin.coverage
 
+import com.npcode.learning.coroutine.hello
+import com.npcode.learning.coroutine.suspendHello
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 

@@ -24,6 +24,6 @@ class CompareTest {
             )
         )
         // fail
-        // assertThat(com.npcode.learning.kotlin.Foo(commonFunc)).isEqualTo(com.npcode.learning.kotlin.Foo(commonFunc))
+        // assertThat(com.npcode.learning.kotlin.coverage.Foo(commonFunc)).isEqualTo(com.npcode.learning.kotlin.coverage.Foo(commonFunc))
     }
 }

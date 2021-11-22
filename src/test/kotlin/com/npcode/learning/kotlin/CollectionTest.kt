@@ -228,6 +228,13 @@ class CollectionTest {
             }.toList()
         }.let { println("persistenceList에 item 10만개를 insert 한 뒤 toList: $it") }
 
+        measureTimeMillis {
+            (1..100000).fold(mutableListOf<Int>()) { acc, i ->
+                acc.add(i)
+                acc
+            }.toList()
+        }.let { println("mutableList에 item 10만개를 insert 한 뒤 toList: $it") }
+
         /*
         lateinit var ls4: List<Int>
         measureTimeMillis {

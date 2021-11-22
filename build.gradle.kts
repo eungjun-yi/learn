@@ -5,6 +5,7 @@ plugins {
 
 	id("org.springframework.boot") version Versions.springBootVersion
 	id("io.spring.dependency-management") version "1.0.10.RELEASE"
+	id("org.jetbrains.kotlinx.kover") version "0.4.2"
 	kotlin("plugin.jpa") version Versions.kotlinVersion
 	kotlin("plugin.allopen") version Versions.kotlinVersion
 	kotlin("jvm") version Versions.kotlinVersion
@@ -15,6 +16,14 @@ plugins {
 
 jacoco {
     toolVersion = "0.8.7"
+}
+
+kover {
+    isEnabled = true                        // false to disable instrumentation of all test tasks in all modules
+    coverageEngine.set(kotlinx.kover.api.CoverageEngine.INTELLIJ) // change instrumentation agent and reporter
+    intellijEngineVersion.set("1.0.622")    // change version of IntelliJ agent and reporter
+    jacocoEngineVersion.set("0.8.7")        // change version of JaCoCo agent and reporter
+    generateReportOnCheck.set(true)         // false to do not execute `koverReport` task before `check` task
 }
 
 group = "com.github.eungjun-yi"

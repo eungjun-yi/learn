@@ -1,4 +1,4 @@
-package com.npcode.learning
+package com.npcode.learning.kotlin.coverage
 
 sealed class SealedParent
 
